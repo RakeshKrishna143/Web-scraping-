@@ -4,7 +4,7 @@ import smtplib
 
 
 
-def send_mail(team,run,wicket):
+def send_mail(list):
 
     server = smtplib.SMTP('smtp.gmail.com',587)
     server.ehlo()
@@ -13,7 +13,9 @@ def send_mail(team,run,wicket):
     server.login('rakesh1432rakei@gmail.com','cnnywsosuceizgwo')
 
     sub = 'hello Madhan!'
-    body = team + '\n'+ run +'\n'+ wicket
+    body=''
+    for i in range(len(list)):
+        body += list[i][0] + '\n'+ list[i][1] +' '+ list[i][2] + '\n'
     msg = 'Subject: '+sub+'\n\n'+body
     print(msg)
 
@@ -21,21 +23,27 @@ def send_mail(team,run,wicket):
     server.quit()
     print('mail sent!')
 
+
+def seperate(a):
+    a= a.strip()
+    a=a.split()
+    if len(a)==5:
+        a[0]=a[0]+a[1]
+        del a[1]
+    team = a[0]+' '+a[1]
+    run = a[2]
+    over = a[3]
+    return [team,run,over]
+
+
+
 link = 'https://www.cricbuzz.com/live-cricket-scorecard/20282/ind-vs-nz-1st-semi-final-1-v-4-icc-cricket-world-cup-2019'
 res = requests.get(link)
-print(res)
 soup = bs4.BeautifulSoup(res.text,'html.parser')
-name = soup.select('.cb-col .cb-col-100 .cb-scrd-hdr-rw')
-a=name[0].getText()
-a= a.strip()
-print(a)
-a=a.split()
-print(a)
-if len(a)==5:
-    a[0]=a[0]+a[1]
-    del a[1]
-team = a[0]+' '+a[1]
-run = a[2]
-wicket = a[3]
-print(team,run,wicket)
-send_mail(team,run,wicket)
+details = soup.select('.cb-col .cb-col-100 .cb-scrd-hdr-rw')
+list=[]
+for i in range(len(details)-1):
+    a=details[i].getText()
+    list.append(seperate(a))
+print(list)
+send_mail(list)
